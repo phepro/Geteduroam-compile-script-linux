@@ -1,11 +1,47 @@
 #! /bin/bash
+set -e
 
-git clone https://github.com/geteduroam/linux-app.git
+argument=$1
 
-cd linux-app
+Desktop_Location_File=$HOME/.local/share/applications/geteduroam.desktop
+Binary_Location_File=/usr/local/bin/geteduroam-gui
+Binary_Location=/usr/local/bin/
 
-make build-gui
+if [ "$argument" = "-R" ]; then
+    echo "Removing geteduroam"
 
-sudo cp geteduroam-gui /usr/local/bin/
+    if [ -f $Desktop_Location_File ]; then
+        echo "Removing .desktop file"
+        rm .local/share/applications/geteduroam.desktop
+    
+    else
+        echo ".desktop file not found!"
 
-printf "[Desktop Entry]\nName=Geteduroam\nExec=geteduroam-gui\nTerminal=false\nType=Application\nCategories=Game;" > $HOME/.local/share/applications/geteduroam.desktop 
+    fi
+
+    if [ -f $Binary_Location_File ]; then
+        echo "Removing binary"
+        sudo rm /usr/local/bin/geteduroam-gui 
+
+    else
+        echo "Binary not found"
+
+    fi
+
+else
+    echo "Installing geteduroam"
+
+    git clone https://github.com/geteduroam/linux-app.git
+
+    cd linux-app
+
+    make build-gui
+
+    sudo cp geteduroam-gui $Binary_Location
+
+    printf "[Desktop Entry]\nName=Geteduroam\nExec=geteduroam-gui\nTerminal=false\nType=Application\nCategories=Internet;" > $Desktop_Location_File 
+
+    cd
+    sudo rm -r linux-app/
+
+fi
